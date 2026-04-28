@@ -19,12 +19,14 @@ public class CaixaEletronico implements ICaixaEletronico{
 
     private int getTotal() {
         int total = 0;
-        for (int[] c : cedulas) {
-            total += c[0] * c[1];
+        for (int[] coluna : cedulas) {
+            total += coluna[0] * coluna[1];
         }
         return total;
     }
     
+    
+    /* EXTRATO */
     public String getExtrato() {
         if (extrato.isEmpty()) {
             return "Nenhum saque realizado.";
@@ -43,17 +45,16 @@ public class CaixaEletronico implements ICaixaEletronico{
     }
 
     
-    // VALOR TOTAL
+    /* VALOR TOTAL */
     @Override
     public String pegaValorTotalDisponivel() {
         return "Valor Total Disponível:\nR$ " + getTotal();
     }
 
     
-    // REPOSIÇÃO
+    /* REPOSIÇÃO */
     @Override
     public String reposicaoCedulas(Integer cedula, Integer quantidade) {
-
         if (cedula == null || quantidade == null) {
             return "Valores inválidos!";
         }
@@ -78,7 +79,7 @@ public class CaixaEletronico implements ICaixaEletronico{
     }
 
     
-    // SAQUE
+    /* SAQUE */
     @Override
     public String sacar(Integer valor) {
         if (getTotal() < valor) {
@@ -126,7 +127,7 @@ public class CaixaEletronico implements ICaixaEletronico{
 
         for (int i = 0; i < cedulas.length; i++) {
             if (usadas[i] > 0) {
-                resposta += usadas[i] + "x R$ " + cedulas[i][0] + "\n";
+                resposta += usadas[i] + " notas de R$ " + cedulas[i][0] + "\n";
             }
         }
 
@@ -134,7 +135,7 @@ public class CaixaEletronico implements ICaixaEletronico{
     }
 
     
-    // RELATÓRIO
+    /* RELATÓRIO */
     @Override
     public String pegaRelatorioCedulas() {
         String resposta = "";
@@ -142,15 +143,15 @@ public class CaixaEletronico implements ICaixaEletronico{
         resposta += String.format("%-10s  %-10s\n", "CÉDULA", "QUANTIDADE");
         resposta += "---------------------------\n";
 
-        for (int[] c : cedulas) {
-            resposta += String.format("R$ %-7d  %-10d\n", c[0], c[1]);
+        for (int[] coluna : cedulas) {
+            resposta += String.format("R$ %-7d  %-10d\n", coluna[0], coluna[1]);
         }
 
         return resposta;
     }
 
     
-    // COTA MINÍMA
+    /* COTA MINÍMA */
     @Override
     public String armazenaCotaMinima(Integer minimo) {
         if (minimo == null || minimo < 0) {
@@ -163,6 +164,7 @@ public class CaixaEletronico implements ICaixaEletronico{
     }
 
     
+    /* JANELA GUI */
     public static void main(String arg[]){
         GUI janela = new GUI(CaixaEletronico.class);
         janela.show();
