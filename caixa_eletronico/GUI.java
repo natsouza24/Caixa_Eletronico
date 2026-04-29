@@ -9,6 +9,8 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JTextArea;
+import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 
 public class GUI extends JFrame {
@@ -103,31 +105,65 @@ public class GUI extends JFrame {
 		contentPane.add(btnExtrato);
 		
 		
-		/* EVENTOS */
+		//UIManager.put("Label.font", new Font("Tahoma", Font.PLAIN, 12));
 		
-		/* SAQUE */
+		
+		/* JANELAS */
+		
+		/* SAQUE */		
 		btnSaque.addActionListener(e -> {
-		    String valor = JOptionPane.showInputDialog(null,
-		    		"Digite o valor do saque:", "Saque", JOptionPane.QUESTION_MESSAGE);
+		    try {
+		        String valor = JOptionPane.showInputDialog(null,
+		                "Digite o valor do saque:", "Saque", JOptionPane.QUESTION_MESSAGE);
 
-		    if (valor != null) {
+		        if (valor == null) return;
+
+		        if (valor.trim().isEmpty()) {
+		            JOptionPane.showMessageDialog(null,
+		                    "Digite um valor válido!", "Erro", JOptionPane.ERROR_MESSAGE);
+		            return;
+		        }
+
+		        int saque = Integer.parseInt(valor);
+
+		        if (saque <= 0) {
+		            JOptionPane.showMessageDialog(null,
+		                    "O valor deve ser maior que zero!", "Erro", JOptionPane.ERROR_MESSAGE);
+		            return;
+		        }
+
 		        JOptionPane.showMessageDialog(null,
-		            caixa.sacar(Integer.parseInt(valor)), "Saque", JOptionPane.INFORMATION_MESSAGE);
+		                caixa.sacar(saque), "Saque", JOptionPane.INFORMATION_MESSAGE);
+
+		    } catch (NumberFormatException ex) {
+		        JOptionPane.showMessageDialog(null,
+		                "Digite apenas números!", "Erro", JOptionPane.ERROR_MESSAGE);
 		    }
 		});
 		
 		
 		/* RELATÓRIO */
         btnRelatorio.addActionListener(e -> {
-            JOptionPane.showMessageDialog(null,
-             caixa.pegaRelatorioCedulas(), "Relatório de Cédulas", JOptionPane.INFORMATION_MESSAGE);
+        	JTextArea area = new JTextArea(caixa.pegaRelatorioCedulas());
+        	area.setFont(new Font("Consolas", Font.PLAIN, 13));
+        	area.setEditable(false);
+
+        	// REMOVE FUNDO
+        	area.setOpaque(false);
+        	area.setBackground(null);
+        	area.setBorder(null);
+
+
+        	JOptionPane.showMessageDialog(null, area, "Relatório de Cédulas", JOptionPane.INFORMATION_MESSAGE);
+
         });
+        
         
         
         /* VALOR TOTAL */
         btnValorTotal.addActionListener(e -> {
             JOptionPane.showMessageDialog(null,
-                caixa.pegaValorTotalDisponivel(), "Valor Total Disponível", JOptionPane.INFORMATION_MESSAGE);
+                caixa.pegaValorTotalDisponivel(), "Caixa Eletrônico", JOptionPane.INFORMATION_MESSAGE);
         });
         
         
@@ -135,34 +171,40 @@ public class GUI extends JFrame {
         btnReposicao.addActionListener(e -> {
             try {
                 String ced = JOptionPane.showInputDialog(null,
-                		"Digite a cédula (2, 5, 10, 20, 50 ou 100 reais):", "Reposição de Cédulas", JOptionPane.QUESTION_MESSAGE);
+                        "Digite a cédula (2, 5, 10, 20, 50 ou 100 reais):",
+                        "Reposição", JOptionPane.QUESTION_MESSAGE);
 
-                if (ced == null) return;
+                if (ced == null || ced.trim().isEmpty())
+                    throw new Exception("Digite um valor válido!");
 
                 int cedula = Integer.parseInt(ced);
 
-                // VALIDA ANTES
                 if (cedula != 2 && cedula != 5 && cedula != 10 &&
-                    cedula != 20 && cedula != 50 && cedula != 100) {
-
-                    JOptionPane.showMessageDialog(null,
-                    		"Cédula inválida!", "Reposição de Cédulas", JOptionPane.ERROR_MESSAGE);
-                    return; // PARA AQUI
-                }
+                    cedula != 20 && cedula != 50 && cedula != 100)
+                    throw new Exception("Cédula inválida!");
 
                 String qtd = JOptionPane.showInputDialog(null,
-                		"Digite a quantidade:", "Reposição de Cédulas", JOptionPane.QUESTION_MESSAGE);
+                        "Digite a quantidade:", "Reposição", JOptionPane.QUESTION_MESSAGE);
 
-                if (qtd == null) return;
+                if (qtd == null || qtd.trim().isEmpty())
+                    throw new Exception("Digite um valor válido!");
 
                 int quantidade = Integer.parseInt(qtd);
 
+                if (quantidade <= 0)
+                    throw new Exception("A quantidade deve ser maior que zero!");
+
                 JOptionPane.showMessageDialog(null,
-                		caixa.reposicaoCedulas(cedula, quantidade), "Reposição de Cédulas", JOptionPane.INFORMATION_MESSAGE);
+                        caixa.reposicaoCedulas(cedula, quantidade),
+                        "Reposição", JOptionPane.INFORMATION_MESSAGE);
 
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(null,
-                		"Digite apenas números!", "Reposição de Cédulas", JOptionPane.ERROR_MESSAGE);
+                        "Digite apenas números!", "Erro", JOptionPane.ERROR_MESSAGE);
+
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(null,
+                        ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
             }
         });
         
@@ -171,14 +213,31 @@ public class GUI extends JFrame {
         btnCotaMinima.addActionListener(e -> {
             try {
                 String cota = JOptionPane.showInputDialog(null,
-                		"Digite a cota mínima:", "Cota miníma", JOptionPane.QUESTION_MESSAGE);
-                if (cota != null) {
+                        "Digite a cota mínima:", "Cota Mínima", JOptionPane.QUESTION_MESSAGE);
+
+                if (cota == null) return;
+
+                if (cota.trim().isEmpty()) {
                     JOptionPane.showMessageDialog(null,
-                            caixa.armazenaCotaMinima(Integer.parseInt(cota)), "Cota miníma", JOptionPane.INFORMATION_MESSAGE);
+                            "Digite um valor válido!", "Erro", JOptionPane.ERROR_MESSAGE);
+                    return;
                 }
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(null, 
-                		"Digite apenas números!");
+
+                int valorCota = Integer.parseInt(cota);
+
+                if (valorCota < 0) {
+                    JOptionPane.showMessageDialog(null,
+                            "A cota mínima não pode ser negativa!", "Erro", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                JOptionPane.showMessageDialog(null,
+                        caixa.armazenaCotaMinima(valorCota),
+                        "Cota Mínima", JOptionPane.INFORMATION_MESSAGE);
+
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(null,
+                        "Digite apenas números!", "Erro", JOptionPane.ERROR_MESSAGE);
             }
         });
 
@@ -188,7 +247,7 @@ public class GUI extends JFrame {
             JOptionPane.showMessageDialog(null,
                 ((CaixaEletronico) caixa).getExtrato(), "Extrato", JOptionPane.INFORMATION_MESSAGE);
 
-            System.exit(0); // Sair
+            System.exit(0); // Fechar todas as janelas
         });	
 	}
 	
