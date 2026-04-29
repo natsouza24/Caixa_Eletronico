@@ -29,7 +29,7 @@ public class CaixaEletronico implements ICaixaEletronico{
     /* EXTRATO */
     public String getExtrato() {
         if (extrato.isEmpty()) {
-            return "Nenhum saque realizado.";
+            return "Nenhum saque ou reposição foi realizado.";
         }
 
         String resposta = "===== EXTRATO =====\n";
@@ -69,9 +69,9 @@ public class CaixaEletronico implements ICaixaEletronico{
                 cedulas[i][1] += quantidade;
 
                 // Registra no extrato
-                extrato.add("Reposição: +" + quantidade + " notas de R$ " + cedula + " | Saldo atual: R$ " + getTotal());
+                extrato.add("Reposição: +" + quantidade + " notas de R$ " + cedula + " | Saldo restante: R$ " + getTotal());
 
-                return "Reposição realizada: " + quantidade + " notas de R$ " + cedula;
+                return "Reposição realizada: \n" + quantidade + " notas de R$ " + cedula;
             }
         }
 
@@ -138,16 +138,16 @@ public class CaixaEletronico implements ICaixaEletronico{
     /* RELATÓRIO */
     @Override
     public String pegaRelatorioCedulas() {
-        String resposta = "";
+        StringBuilder resposta = new StringBuilder();
 
-        resposta += String.format("%-10s  %-10s\n", "CÉDULA", "QUANTIDADE");
-        resposta += "---------------------------\n";
+        resposta.append(String.format("%-10s %-10s\n", "CÉDULA", "QUANTIDADE"));
+        resposta.append("-----------------------\n");
 
         for (int[] coluna : cedulas) {
-            resposta += String.format("R$ %-7d  %-10d\n", coluna[0], coluna[1]);
+            resposta.append(String.format("%-10s %-10d\n", "R$ " + coluna[0], coluna[1]));
         }
 
-        return resposta;
+        return resposta.toString();
     }
 
     
@@ -160,7 +160,7 @@ public class CaixaEletronico implements ICaixaEletronico{
 
         cotaMinima = minimo;
 
-        return "Cota mínima definida: R$ " + minimo;
+        return "Cota mínima definida: \nR$ " + minimo;
     }
 
     
