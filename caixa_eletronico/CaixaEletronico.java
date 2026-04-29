@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 public class CaixaEletronico implements ICaixaEletronico{
 	
-	private int[][] cedulas = { // Matriz 6x2 = Coluna 0 (valor das células) e Coluna 1 (quantidade de cédulas)    
+	private int[][] cedulas = { // Matriz 6x2 = Coluna 0 (valor das cédulas) e Coluna 1 (quantidade de cédulas)    
         {100, 100},
         {50, 200},
         {20, 300},
@@ -13,11 +13,11 @@ public class CaixaEletronico implements ICaixaEletronico{
         {2, 500}
     };
 
-    private int cotaMinima = 0;
+    private int cotaMinima = 0; // Inicialmente a cota começa no 0
     
-    private ArrayList<String> extrato = new ArrayList<>();
+    private ArrayList<String> extrato = new ArrayList<>(); // Guarda o histórico das operações no extrato do caixa
 
-    private int getTotal() {
+    private int getTotal() { // Calcula o valor total no caixa
         int total = 0;
         for (int[] coluna : cedulas) {
             total += coluna[0] * coluna[1];
@@ -28,17 +28,17 @@ public class CaixaEletronico implements ICaixaEletronico{
     
     /* EXTRATO */
     public String getExtrato() {
-        if (extrato.isEmpty()) {
+        if (extrato.isEmpty()) { // Não ocorreu nenhuma operação no caixa
             return "Nenhum saque ou reposição foi realizado.";
         }
 
-        String resposta = "===== EXTRATO =====\n";
+        String resposta = "======= EXTRATO =======\n";
 
         for (String e : extrato) {
             resposta += e + "\n";
         }
 
-        resposta += "===================\n";
+        resposta += "=====================\n";
         resposta += "Saldo final: R$ " + getTotal();
 
         return resposta;
@@ -68,10 +68,13 @@ public class CaixaEletronico implements ICaixaEletronico{
 
                 cedulas[i][1] += quantidade;
 
-                // Registra no extrato
-                extrato.add("Reposição: +" + quantidade + " notas de R$ " + cedula + " | Saldo restante: R$ " + getTotal());
+                String texto = (quantidade == 1) ? "nota" : "notas";
 
-                return "Reposição realizada: \n" + quantidade + " notas de R$ " + cedula;
+                // Registra no extrato
+                extrato.add("Reposição: +" + quantidade + " " + texto + " de R$ " + cedula +
+                            " | Saldo restante: R$ " + getTotal());
+
+                return "Reposição realizada:\n" + quantidade + " " + texto + " de R$ " + cedula;
             }
         }
 
@@ -82,52 +85,50 @@ public class CaixaEletronico implements ICaixaEletronico{
     /* SAQUE */
     @Override
     public String sacar(Integer valor) {
-        if (getTotal() < valor) {
+        if (getTotal() < valor) { // Não tem saldo suficiente para fazer o saque
             return "Saldo insuficiente!";
         }
 
-        int restante = valor;
-        int[] usadas = new int[6];
-        int totalCedulas = 0;
+        int restante = valor; // Quando ainda falta para sacar
+        int[] usadas = new int[6]; // Quantas notas de cada tipo foram usadas
+        int totalCedulas = 0; // Totas de notas usadas
 
-        for (int i = 0; i < cedulas.length; i++) {
+        for (int i = 0; i < cedulas.length; i++) { // Percorre todos os tipos de cédulas
 
-            int nota = cedulas[i][0];
-            int disponivel = cedulas[i][1];
+            int nota = cedulas[i][0]; // valor da cédula
+            int disponivel = cedulas[i][1]; // quantas cédulas tem no caixa
 
-            int qtd = Math.min(restante / nota, disponivel);
+            int qtd = Math.min(restante / nota, disponivel); // Verifica o menor valor
 
-            if (totalCedulas + qtd > 30) {
+            if (totalCedulas + qtd > 30) { // O caixa não pode entrgar mais de 30 notas por vez
                 qtd = 30 - totalCedulas;
             }
 
-            usadas[i] = qtd;
-            restante -= qtd * nota;
-            totalCedulas += qtd;
+            usadas[i] = qtd; // Guarda quantas notas foram usadas
+            restante -= qtd * nota; // Diminui o valor restante
+            totalCedulas += qtd; // Soma no total das notas
         }
 
-        if (restante != 0) {
+        if (restante != 0) { // Não tem notas suficientes e cancela o saque
             return "Saque não realizado por falta de cédulas";
         }
 
-        // Atualiza o caixa
-        for (int i = 0; i < cedulas.length; i++) {
+        for (int i = 0; i < cedulas.length; i++) { // Atualiza o caixa, tirando as cédulas usadas para o saque
             cedulas[i][1] -= usadas[i];
         }
         
-        // Registra no extrato
-        extrato.add("Saque: R$ " + valor + " | Saldo restante: R$ " + getTotal());
+        extrato.add("Saque: R$ " + valor + " | Saldo restante: R$ " + getTotal()); // Registra no extrato
 
-        // Veriricar após o saque
-        if (getTotal() <= cotaMinima) {
+        if (getTotal() <= cotaMinima) { // Veririca se o caixa ficou vazio
             return "Caixa Vazio: Chame o Operador";
         }
 
         String resposta = "Saque realizado:\n";
 
-        for (int i = 0; i < cedulas.length; i++) {
+        for (int i = 0; i < cedulas.length; i++) { // Mostra quantas notas de cada valor foram entregues
             if (usadas[i] > 0) {
-                resposta += usadas[i] + " notas de R$ " + cedulas[i][0] + "\n";
+                String texto = (usadas[i] == 1) ? "nota" : "notas";
+                resposta += usadas[i] + " " + texto + " de R$ " + cedulas[i][0] + "\n";
             }
         }
 
