@@ -13,7 +13,7 @@ import javax.swing.JTextArea;
 import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 
-public class GUI extends JFrame {
+public class GUI extends JFrame { 
 
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
