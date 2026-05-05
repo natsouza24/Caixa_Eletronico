@@ -1,7 +1,10 @@
 package caixa_eletronico;
 
+import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Toolkit;
 
 import javax.swing.JButton;
@@ -9,6 +12,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.border.EmptyBorder;
 
@@ -117,7 +121,7 @@ public class GUI extends JFrame {
 		        String valor = JOptionPane.showInputDialog(null,
 		                "Digite o valor do saque:", "Saque", JOptionPane.QUESTION_MESSAGE);
 
-		        if (valor == null) return;
+		        if (valor == null) return; // Cancelar o saque
 
 		        if (valor.trim().isEmpty()) { // Se campo estiver vazio
 		            JOptionPane.showMessageDialog(null,
@@ -125,7 +129,7 @@ public class GUI extends JFrame {
 		            return;
 		        }
 
-		        int saque = Integer.parseInt(valor);
+		        int saque = Integer.parseInt(valor); // Converter uma String em um número inteiro
 
 		        if (saque <= 0) { // Se digitar um valor menor que 0
 		            JOptionPane.showMessageDialog(null,
@@ -133,7 +137,7 @@ public class GUI extends JFrame {
 		            return;
 		        }
 
-		        // Janela do resultado do saque
+		        // Janela do resultado
 		        JOptionPane.showMessageDialog(null,
 		                caixa.sacar(saque), "Saque", JOptionPane.INFORMATION_MESSAGE);
 
@@ -170,45 +174,50 @@ public class GUI extends JFrame {
         /* REPOSIÇÃO */
         btnReposicao.addActionListener(e -> {
             try {
-            	// Cédula
+                // Cédula
                 String ced = JOptionPane.showInputDialog(null,
                         "Digite a cédula (2, 5, 10, 20, 50 ou 100 reais):",
                         "Reposição", JOptionPane.QUESTION_MESSAGE);
 
-                if (ced == null || ced.trim().isEmpty()) // Se o campo cédula estiver vazio
+                if (ced == null) return; // Cancelar reposição
+
+                if (ced.trim().isEmpty()) // Se o campo cédula estiver vazio
                     throw new Exception("Digite um valor válido!");
 
-                int cedula = Integer.parseInt(ced);
+                int cedula = Integer.parseInt(ced); // Converter uma String em um número inteiro
 
                 if (cedula != 2 && cedula != 5 && cedula != 10 &&
                     cedula != 20 && cedula != 50 && cedula != 100) // Se colocar cédula que não existe
-                    throw new Exception("Cédula inválida!"); 
+                    throw new Exception("Cédula inválida!");
+
 
                 // Quantidade
                 String qtd = JOptionPane.showInputDialog(null,
                         "Digite a quantidade:", "Reposição", JOptionPane.QUESTION_MESSAGE);
 
-                if (qtd == null || qtd.trim().isEmpty()) // Se o campo quantidade estiver vazio
-                    throw new Exception("Digite um valor válido!"); 
+                if (qtd == null) return; // Cancelar reposição
 
-                int quantidade = Integer.parseInt(qtd);
+                if (qtd.trim().isEmpty()) // Se o campo quantidade estiver vazio
+                    throw new Exception("Digite um valor válido!");
+
+                int quantidade = Integer.parseInt(qtd); // Converte uma String em um número inteiro
 
                 if (quantidade <= 0) // Se colocar quantidade menor que 0
-                    throw new Exception("A quantidade deve ser maior que zero!"); 
-                
-                
-                // Janela da Reposição
+                    throw new Exception("A quantidade deve ser maior que zero!");
+
+
+                // Executa a reposição
                 JOptionPane.showMessageDialog(null,
                         caixa.reposicaoCedulas(cedula, quantidade),
-                        "Reposição", JOptionPane.INFORMATION_MESSAGE); 
+                        "Reposição", JOptionPane.INFORMATION_MESSAGE);
 
             } catch (NumberFormatException ex) { // Se digitar letras ou símbolos
                 JOptionPane.showMessageDialog(null,
-                        "Digite apenas números!", "Erro", JOptionPane.ERROR_MESSAGE); 
+                        "Digite apenas números!", "Erro", JOptionPane.ERROR_MESSAGE);
 
             } catch (Exception ex) { // Captura e exibe todos os erros apresentados
                 JOptionPane.showMessageDialog(null,
-                        ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE); 
+                        ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
             }
         });
         
@@ -247,15 +256,45 @@ public class GUI extends JFrame {
             }
         });
 
-        
         /* EXTRATO */
-        btnExtrato.addActionListener(e -> { 
-        	// Exibi o histórico de operações
-            JOptionPane.showMessageDialog(null,
-                ((CaixaEletronico) caixa).getExtrato(), "Extrato", JOptionPane.INFORMATION_MESSAGE); 
+        btnExtrato.addActionListener(e -> {
+            String texto = ((CaixaEletronico) caixa).getExtrato();
 
-            System.exit(0); // Fechar todas as janelas
-        });	
+            // Área
+            JTextArea area = new JTextArea(texto);
+            area.setFont(new Font("Consolas", Font.PLAIN, 14));
+            
+            area.setEditable(false);
+            area.setLineWrap(true);
+            area.setWrapStyleWord(true);
+            area.setBorder(null);
+            area.setOpaque(false);
+
+            // Panel
+            JPanel panel = new JPanel(new BorderLayout(10, 10));
+            panel.setBorder(new EmptyBorder(10, 10, 10, 10));
+            panel.add(area, BorderLayout.CENTER);
+
+            boolean vazio = texto.contains("Nenhuma operação realizada.");
+
+            // Tamanhos das Telas
+            if (vazio) {
+                area.setPreferredSize(new Dimension(220, 20));
+            } else {
+                int largura = 400;
+                int altura = area.getPreferredSize().height;
+                
+                area.setSize(new Dimension(largura, Short.MAX_VALUE));
+                area.setPreferredSize(new Dimension(largura, altura));
+            }
+
+            // Janela
+            JOptionPane.showMessageDialog(null,
+                    panel, "Extrato", JOptionPane.INFORMATION_MESSAGE
+            );
+            
+            System.exit(0);
+        });
 	}
 	
 	
